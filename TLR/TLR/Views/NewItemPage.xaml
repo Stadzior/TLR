@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="TLR.Views.NewItemPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="New Item"
+    mc:Ignorable="d">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Clicked="Cancel_Clicked" Text="Cancel" />
+        <ToolbarItem Clicked="Save_Clicked" Text="Save" />
+    </ContentPage.ToolbarItems>
+    <StackLayout>
+        <Image
+            x:Name="picture"
+            Aspect="AspectFill"
+            VerticalOptions="FillAndExpand" />
+        <Label x:Name="output" HorizontalOptions="CenterAndExpand" />
+        <StackLayout Orientation="Horizontal">
+            <Button
+                Clicked="PickPhotoButton_Clicked"
+                HorizontalOptions="FillAndExpand"
+                Text="Pick a picture" />
+            <Button
+                Clicked="TakePhotoButton_Clicked"
+                HorizontalOptions="FillAndExpand"
+                Text="Take a picture" />
+        </StackLayout>
+    </StackLayout>
+</ContentPage>
