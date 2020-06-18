@@ -17,7 +17,7 @@ namespace TLR.Droid
         protected override void OnCreate(Bundle savedInstanceState)
         {
             DependencyService.Register<IPhotoDetector, PhotoDetector>();
-
+            //test
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
 
