@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
 using TLR.Models;
-using TLR.Services;
 
 namespace TLR.Views
 {
@@ -17,6 +17,8 @@ namespace TLR.Views
     [DesignTimeVisible(false)]
     public partial class NewItemPage : ContentPage
     {
+        private static readonly HttpClient client = new HttpClient();
+
         public Item Item { get; set; }
 
         public NewItemPage()
@@ -64,18 +66,38 @@ namespace TLR.Views
 
             picture.Source = ImageSource.FromFile(photo.Path);
 
-            var service = DependencyService.Get<IPhotoDetector>();
-            if (service == null)
-            {
-                await DisplayAlert("Info", "Not implemented the feature on your device.", "OK");
-                return;
-            }
 
-            using (var s = photo.GetStream())
-            {
-                var result = await service.DetectAsync(s);
-                output.Text = $"It looks like a {result}";
-            }
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=machinelearnin5244646737;AccountKey=6YB4jwp+Ek/wVKwBVIvrLunrFID9Pyxm9pe0IZ/5ViHadGKlFLANKLIhpvXbI7FkjuK0714Bx8yoaEjpThLOvQ==;EndpointSuffix=core.windows.net";
+
+            // Create a BlobServiceClient object which will be used to create a container client
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+            //Create a unique name for the container
+            string containerName = "predict";
+
+            // Create the container and return a container client object
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+            // Get a reference to a blob
+            BlobClient blobClient = containerClient.GetBlobClient(Path.GetFileName(photo.AlbumPath));
+
+            Console.WriteLine("Uploading to Blob storage as blob:\n\t {0}\n", blobClient.Uri);
+
+            using FileStream uploadFileStream = File.OpenRead(photo.Path);
+            await blobClient.UploadAsync(uploadFileStream, true);
+            uploadFileStream.Close();
+
+            output.Text = blobClient.Uri.ToString();
+
+            var values = new Dictionary<string, string> {};
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = await client.PostAsync("https://modelpythonapiv2.azurewebsites.net/predict?imageUrl="+ blobClient.Uri.ToString(), content);
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            output.Text = responseString;
         }
     }
 } 
